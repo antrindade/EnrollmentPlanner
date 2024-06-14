@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "31083474091",
+    "project_id": "enrollment-planner",
+    "storage_bucket": "enrollment-planner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31083474091:android:a3ca5c89e7e2c44f279bee",
+        "android_client_info": {
+          "package_name": "com.example.enrollmentplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJIn-MBwZHJ4p1pswxyDLvC8Zo_wHDxRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
