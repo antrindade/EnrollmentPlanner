@@ -1,4 +1,4 @@
-package com.example.enrollmentplanner.features.form.domain.usecase
+package com.example.enrollmentplanner.features.home.domain.usecase
 
 import com.example.enrollmentplanner.core.data.model.UserModel
 import com.example.enrollmentplanner.core.data.repository.FirebaseRepository
@@ -14,23 +14,25 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
-sealed class SetUserData : ErrorType {
-    data object SetUserDataError : SetUserData()
+sealed class DeleteAccountErrorState: ErrorType {
+    data object Generic: DeleteAccountErrorState()
 }
 
-class SetUserDataUseCase @Inject constructor(
+class DeleteAccountUseCase @Inject constructor(
     private val repository: FirebaseRepository,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher
-): (UserModel) -> Flow<DataState<Boolean>> {
+    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+): (UserModel) -> Flow<DataState<Any>> {
+    override fun invoke(user: UserModel) = flow<DataState<Any>> {
 
-    override fun invoke(user: UserModel): Flow<DataState<Boolean>> = flow {
-        emit(DataState.Loading)
-        val result = repository.saveUserData(FirebaseTableEnum.User.table, user.id, user.toFirebaseUser())
-        emit(DataState.Success(result))
+        repository.deleteDocument(
+            FirebaseTableEnum.User.table,
+            user.id
+        )
+
+        emit(DataState.Success(Any()))
     }.onStart {
         emit(DataState.Loading)
-    }.catch { exception ->
-        exception.printStackTrace()
-        emit(DataState.Error(SetUserData.SetUserDataError))
+    }.catch {
+        emit(DataState.Error(DeleteAccountErrorState.Generic))
     }.flowOn(dispatcher)
 }

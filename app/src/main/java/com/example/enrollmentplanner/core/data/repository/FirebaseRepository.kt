@@ -47,4 +47,21 @@ class FirebaseRepository(
 
         return task
     }
+
+    @Throws(Exception::class)
+    suspend fun deleteDocument(
+        table: String,
+        documentId: String
+    ) {
+        val task = fireStore
+            .collection(table)
+            .document(documentId)
+            .delete()
+            .continueWith { it.isSuccessful }
+            .await()
+
+        if (!task) {
+            throw Exception("Failed to delete document.")
+        }
+    }
 }

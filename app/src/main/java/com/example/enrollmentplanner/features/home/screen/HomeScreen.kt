@@ -39,30 +39,36 @@ fun HomeScreen(navController: NavController) {
     val viewModel: HomeViewModel = hiltViewModel()
     val userUiState by viewModel.userUiState.collectAsState()
 
-    HomeContent(userUiState, navController)
+    val onDeleteClick: (UserModel) -> Unit = { user ->
+        viewModel.deleteUserData(user)
+    }
+
+    HomeContent(userUiState, onDeleteClick, navController)
 }
 
 @Composable
 fun HomeContent(
     userUiState: DataState<List<UserModel>>,
+    onDeleteClick: (UserModel) -> Unit,
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         floatingActionButton = { FloatingActionButtonAdd(navController) }
     ) { padding ->
-        StateHome(userUiState, modifier.padding(padding))
+        StateHome(userUiState, onDeleteClick, modifier.padding(padding))
     }
 }
 
 @Composable
 fun StateHome(
     userUiState: DataState<List<UserModel>>,
+    onDeleteClick: (UserModel) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (userUiState) {
         is DataState.Loading -> LoadingView(modifier)
-        is DataState.Success -> UserListView(userUiState.data, modifier)
+        is DataState.Success -> UserListView(userUiState.data, onDeleteClick, modifier)
         is DataState.Error -> ErrorView(modifier)
     }
 }
@@ -75,11 +81,14 @@ fun LoadingView(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun UserListView(users: List<UserModel>, modifier: Modifier = Modifier) {
+fun UserListView(
+    users: List<UserModel>,
+    onDeleteClick: (UserModel) -> Unit,
+    modifier: Modifier = Modifier
+) {
     if (users.isEmpty()) {
         Column(
-            modifier
-                .fillMaxSize(),
+            modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -91,7 +100,10 @@ fun UserListView(users: List<UserModel>, modifier: Modifier = Modifier) {
             contentPadding = PaddingValues(16.dp)
         ) {
             items(users) { user ->
-                AddressCard(user)
+                AddressCard(
+                    user = user,
+                    onDeleteClick = { onDeleteClick(user) }
+                )
             }
         }
     }

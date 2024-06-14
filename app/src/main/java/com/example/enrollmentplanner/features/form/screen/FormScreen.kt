@@ -50,6 +50,7 @@ import com.example.enrollmentplanner.presents.util.NavGraphEnum
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Date
 
 @Composable
 fun FormScreen(navController: NavController) {
@@ -109,7 +110,7 @@ fun FormContent(viewModel: FormViewModel, modifier: Modifier = Modifier) {
         DateVisualTransformation().filter(AnnotatedString(birthDate))
     }.text.text
     val phoneNumberFormat = remember(phoneNumber, visualTransformation) {
-        DateVisualTransformation().filter(AnnotatedString(phoneNumber))
+        PhoneVisualTransformation().filter(AnnotatedString(phoneNumber))
     }.text.text
 
     var isCpfVisible by remember { mutableStateOf(true) }
@@ -222,6 +223,10 @@ fun FormContent(viewModel: FormViewModel, modifier: Modifier = Modifier) {
                         phone = phoneNumberFormat
                     )
                     if (isValid(user).first) {
+                        val currentDate = Date()
+                        val timestamp = java.sql.Timestamp(currentDate.time)
+                        user.creationDate = timestamp.time
+                        user.id = generateUserIdentifier(user)
                         viewModel.setUserData(user)
                     }
                 },
@@ -247,6 +252,16 @@ fun FormContent(viewModel: FormViewModel, modifier: Modifier = Modifier) {
         }
     }
 }
+
+fun generateUserIdentifier(user: UserModel): String {
+    val firstNameLetters = user.name.take(3)?.toUpperCase()
+    val lastFourDigits = user.phone.takeLast(4)
+    val documentId = "$firstNameLetters$lastFourDigits${user.uf.toUpperCase()}"
+
+    return documentId
+}
+
+
 
 fun isValid(user: UserModel): Pair<Boolean, String?> {
     if (user.uf.isEmpty()) return Pair(false, emptyString)
